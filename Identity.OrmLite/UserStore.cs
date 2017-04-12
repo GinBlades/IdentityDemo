@@ -15,10 +15,11 @@ namespace Identity.OrmLite
     ///     IUserRoleStore
     ///     Set Methods do not save
     /// </summary>
-    public class UserStore : IUserStore<IdentityUser>, IUserLoginStore<IdentityUser>,
-        IUserClaimStore<IdentityUser>, IUserRoleStore<IdentityUser>, IUserPasswordStore<IdentityUser>,
-        IUserSecurityStampStore<IdentityUser>, IUserEmailStore<IdentityUser>, IUserPhoneNumberStore<IdentityUser>,
-        IUserTwoFactorStore<IdentityUser, string>, IUserLockoutStore<IdentityUser, string>
+    public class UserStore<TUser> : IUserStore<TUser>, IUserLoginStore<TUser>,
+        IUserClaimStore<TUser>, IUserRoleStore<TUser>, IUserPasswordStore<TUser>,
+        IUserSecurityStampStore<TUser>, IUserEmailStore<TUser>, IUserPhoneNumberStore<TUser>,
+        IUserTwoFactorStore<TUser, string>, IUserLockoutStore<TUser, string>
+        where TUser : IdentityUser
     {
         private readonly IDbConnectionFactory _conn;
 
@@ -33,7 +34,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="claim"></param>
         /// <returns></returns>
-        public async Task AddClaimAsync(IdentityUser user, Claim claim)
+        public async Task AddClaimAsync(TUser user, Claim claim)
         {
             if (user == null)
             {
@@ -56,7 +57,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="login"></param>
         /// <returns></returns>
-        public async Task AddLoginAsync(IdentityUser user, UserLoginInfo login)
+        public async Task AddLoginAsync(TUser user, UserLoginInfo login)
         {
             if (user == null)
             {
@@ -84,7 +85,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="roleName"></param>
         /// <returns></returns>
-        public async Task AddToRoleAsync(IdentityUser user, string roleName)
+        public async Task AddToRoleAsync(TUser user, string roleName)
         {
             if (user == null)
             {
@@ -111,7 +112,7 @@ namespace Identity.OrmLite
         ///     Insert user
         /// </summary>
         /// <param name="user"></param>
-        public async Task CreateAsync(IdentityUser user)
+        public async Task CreateAsync(TUser user)
         {
             if (user == null)
             {
@@ -127,7 +128,7 @@ namespace Identity.OrmLite
         ///     Delete user
         /// </summary>
         /// <param name="user"></param>
-        public async Task DeleteAsync(IdentityUser user)
+        public async Task DeleteAsync(TUser user)
         {
             if (user == null)
             {
@@ -148,7 +149,7 @@ namespace Identity.OrmLite
         ///     Returns the user associated with this login
         /// </summary>
         /// <returns></returns>
-        public async Task<IdentityUser> FindAsync(UserLoginInfo login)
+        public async Task<TUser> FindAsync(UserLoginInfo login)
         {
             if (login == null)
             {
@@ -162,7 +163,7 @@ namespace Identity.OrmLite
                 if (userLogin != null)
                 {
                     var userId = userLogin.UserId;
-                    return await db.SingleByIdAsync<IdentityUser>(userId);
+                    return await db.SingleByIdAsync<TUser>(userId);
                 }
             }
             return null;
@@ -173,11 +174,11 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
-        public async Task<IdentityUser> FindByEmailAsync(string email)
+        public async Task<TUser> FindByEmailAsync(string email)
         {
             using (var db = _conn.Open())
             {
-                return await db.SingleAsync<IdentityUser>(iu => iu.Email.ToUpper() == email.ToUpper());
+                return await db.SingleAsync<TUser>(iu => iu.Email.ToUpper() == email.ToUpper());
             }
         }
 
@@ -186,11 +187,11 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<IdentityUser> FindByIdAsync(string userId)
+        public async Task<TUser> FindByIdAsync(string userId)
         {
             using (var db = _conn.Open())
             {
-                return await db.SingleByIdAsync<IdentityUser>(userId);
+                return await db.SingleByIdAsync<TUser>(userId);
             }
         }
 
@@ -199,11 +200,11 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="userName"></param>
         /// <returns></returns>
-        public async Task<IdentityUser> FindByNameAsync(string userName)
+        public async Task<TUser> FindByNameAsync(string userName)
         {
             using (var db = _conn.Open())
             {
-                return await db.SingleAsync<IdentityUser>(iu => iu.UserName.ToUpper() == userName.ToUpper());
+                return await db.SingleAsync<TUser>(iu => iu.UserName.ToUpper() == userName.ToUpper());
             }
         }
 
@@ -213,7 +214,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<int> GetAccessFailedCountAsync(IdentityUser user)
+        public Task<int> GetAccessFailedCountAsync(TUser user)
         {
             if (user == null)
             {
@@ -227,7 +228,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<IList<Claim>> GetClaimsAsync(IdentityUser user)
+        public async Task<IList<Claim>> GetClaimsAsync(TUser user)
         {
             if (user == null)
             {
@@ -242,7 +243,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<string> GetEmailAsync(IdentityUser user)
+        public Task<string> GetEmailAsync(TUser user)
         {
             if (user == null)
             {
@@ -256,7 +257,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<bool> GetEmailConfirmedAsync(IdentityUser user)
+        public Task<bool> GetEmailConfirmedAsync(TUser user)
         {
             if (user == null)
             {
@@ -270,7 +271,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<bool> GetLockoutEnabledAsync(IdentityUser user)
+        public Task<bool> GetLockoutEnabledAsync(TUser user)
         {
             if (user == null)
             {
@@ -285,7 +286,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<DateTimeOffset> GetLockoutEndDateAsync(IdentityUser user)
+        public Task<DateTimeOffset> GetLockoutEndDateAsync(TUser user)
         {
             if (user == null)
             {
@@ -302,7 +303,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<IList<UserLoginInfo>> GetLoginsAsync(IdentityUser user)
+        public async Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user)
         {
             if (user == null)
             {
@@ -328,7 +329,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<string> GetPasswordHashAsync(IdentityUser user)
+        public Task<string> GetPasswordHashAsync(TUser user)
         {
             if (user == null)
             {
@@ -342,7 +343,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<string> GetPhoneNumberAsync(IdentityUser user)
+        public Task<string> GetPhoneNumberAsync(TUser user)
         {
             if (user == null)
             {
@@ -356,7 +357,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<bool> GetPhoneNumberConfirmedAsync(IdentityUser user)
+        public Task<bool> GetPhoneNumberConfirmedAsync(TUser user)
         {
             if (user == null)
             {
@@ -370,7 +371,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<IList<string>> GetRolesAsync(IdentityUser user)
+        public async Task<IList<string>> GetRolesAsync(TUser user)
         {
             if (user == null)
             {
@@ -379,7 +380,7 @@ namespace Identity.OrmLite
             using (var db = _conn.Open())
             {
                 var query = db.From<IdentityRole>()
-                    .Join<IdentityUserRole>()
+                    .Join<IdentityUserRole>((ir, iur) => ir.Id == iur.RoleId)
                     .Where<IdentityUserRole>(iur => iur.UserId == user.Id)
                     .Select(ir => ir.Name);
 
@@ -392,7 +393,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<string> GetSecurityStampAsync(IdentityUser user)
+        public Task<string> GetSecurityStampAsync(TUser user)
         {
             if (user == null)
             {
@@ -406,7 +407,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<bool> GetTwoFactorEnabledAsync(IdentityUser user)
+        public Task<bool> GetTwoFactorEnabledAsync(TUser user)
         {
             if (user == null)
             {
@@ -420,7 +421,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<bool> HasPasswordAsync(IdentityUser user)
+        public Task<bool> HasPasswordAsync(TUser user)
         {
             return Task.FromResult(user.PasswordHash != null);
         }
@@ -430,7 +431,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task<int> IncrementAccessFailedCountAsync(IdentityUser user)
+        public Task<int> IncrementAccessFailedCountAsync(TUser user)
         {
             if (user == null)
             {
@@ -446,7 +447,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="roleName"></param>
         /// <returns></returns>
-        public async Task<bool> IsInRoleAsync(IdentityUser user, string roleName)
+        public async Task<bool> IsInRoleAsync(TUser user, string roleName)
         {
             if (user == null)
             {
@@ -475,7 +476,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="claim"></param>
         /// <returns></returns>
-        public async Task RemoveClaimAsync(IdentityUser user, Claim claim)
+        public async Task RemoveClaimAsync(TUser user, Claim claim)
         {
             if (user == null)
             {
@@ -501,7 +502,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="roleName"></param>
         /// <returns></returns>
-        public async Task RemoveFromRoleAsync(IdentityUser user, string roleName)
+        public async Task RemoveFromRoleAsync(TUser user, string roleName)
         {
             if (user == null)
             {
@@ -538,7 +539,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="login"></param>
         /// <returns></returns>
-        public async Task RemoveLoginAsync(IdentityUser user, UserLoginInfo login)
+        public async Task RemoveLoginAsync(TUser user, UserLoginInfo login)
         {
             if (user == null)
             {
@@ -572,7 +573,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task ResetAccessFailedCountAsync(IdentityUser user)
+        public Task ResetAccessFailedCountAsync(TUser user)
         {
             if (user == null)
             {
@@ -589,7 +590,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="email"></param>
         /// <returns></returns>
-        public Task SetEmailAsync(IdentityUser user, string email)
+        public Task SetEmailAsync(TUser user, string email)
         {
             if (user == null)
             {
@@ -605,7 +606,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="confirmed"></param>
         /// <returns></returns>
-        public Task SetEmailConfirmedAsync(IdentityUser user, bool confirmed)
+        public Task SetEmailConfirmedAsync(TUser user, bool confirmed)
         {
             if (user == null)
             {
@@ -621,7 +622,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="enabled"></param>
         /// <returns></returns>
-        public Task SetLockoutEnabledAsync(IdentityUser user, bool enabled)
+        public Task SetLockoutEnabledAsync(TUser user, bool enabled)
         {
             if (user == null)
             {
@@ -637,7 +638,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="lockoutEnd"></param>
         /// <returns></returns>
-        public Task SetLockoutEndDateAsync(IdentityUser user, DateTimeOffset lockoutEnd)
+        public Task SetLockoutEndDateAsync(TUser user, DateTimeOffset lockoutEnd)
         {
             if (user == null)
             {
@@ -653,7 +654,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="passwordHash"></param>
         /// <returns></returns>
-        public Task SetPasswordHashAsync(IdentityUser user, string passwordHash)
+        public Task SetPasswordHashAsync(TUser user, string passwordHash)
         {
             if (user == null)
             {
@@ -669,7 +670,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="phoneNumber"></param>
         /// <returns></returns>
-        public Task SetPhoneNumberAsync(IdentityUser user, string phoneNumber)
+        public Task SetPhoneNumberAsync(TUser user, string phoneNumber)
         {
             if (user == null)
             {
@@ -684,7 +685,7 @@ namespace Identity.OrmLite
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public Task SetPhoneNumberConfirmedAsync(IdentityUser user, bool confirmed)
+        public Task SetPhoneNumberConfirmedAsync(TUser user, bool confirmed)
         {
             if (user == null)
             {
@@ -699,7 +700,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="stamp"></param>
         /// <returns></returns>
-        public Task SetSecurityStampAsync(IdentityUser user, string stamp)
+        public Task SetSecurityStampAsync(TUser user, string stamp)
         {
             if (user == null)
             {
@@ -715,7 +716,7 @@ namespace Identity.OrmLite
         /// <param name="user"></param>
         /// <param name="enabled"></param>
         /// <returns></returns>
-        public Task SetTwoFactorEnabledAsync(IdentityUser user, bool enabled)
+        public Task SetTwoFactorEnabledAsync(TUser user, bool enabled)
         {
             if (user == null)
             {
@@ -729,7 +730,7 @@ namespace Identity.OrmLite
         ///     Update an entity
         /// </summary>
         /// <param name="user"></param>
-        public async Task UpdateAsync(IdentityUser user)
+        public async Task UpdateAsync(TUser user)
         {
             if (user == null)
             {
@@ -741,7 +742,7 @@ namespace Identity.OrmLite
             }
         }
 
-        private async Task<List<IdentityUserClaim>> EnsureUserClaimsAreLoaded(IdentityUser user)
+        private async Task<List<IdentityUserClaim>> EnsureUserClaimsAreLoaded(TUser user)
         {
             if (user.Claims.Count == 0)
             {
@@ -750,7 +751,7 @@ namespace Identity.OrmLite
             return user.Claims;
         }
 
-        private async Task<List<IdentityUserRole>> EnsureUserRolesAreLoaded(IdentityUser user)
+        private async Task<List<IdentityUserRole>> EnsureUserRolesAreLoaded(TUser user)
         {
             if (user.Roles.Count == 0)
             {
@@ -759,7 +760,7 @@ namespace Identity.OrmLite
             return user.Roles;
         }
 
-        private async Task<List<IdentityUserLogin>> EnsureUserLoginsAreLoaded(IdentityUser user)
+        private async Task<List<IdentityUserLogin>> EnsureUserLoginsAreLoaded(TUser user)
         {
             if (user.Logins.Count == 0)
             {
@@ -768,7 +769,7 @@ namespace Identity.OrmLite
             return user.Logins;
         }
 
-        private async Task<List<T>> LoadRelationship<T>(IdentityUser user) where T : IUserRelationship
+        private async Task<List<T>> LoadRelationship<T>(TUser user) where T : IUserRelationship
         {
             using (var db = _conn.Open())
             {

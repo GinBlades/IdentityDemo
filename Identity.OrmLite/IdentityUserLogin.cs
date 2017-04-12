@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceStack.DataAnnotations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,8 @@ namespace Identity.OrmLite
 {
     public class IdentityUserLogin : IUserRelationship
     {
+        [AutoIncrement]
+        public int Id { get; set; }
         /// <summary>
         ///     The login provider for the login (i.e. facebook, google)
         /// </summary>
