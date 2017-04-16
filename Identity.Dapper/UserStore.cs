@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
-using System.Data.SqlClient;
 using Dapper.Contrib.Extensions;
 using Dapper;
+using Cototal.Dapper.Shared.Standard;
 
 namespace Identity.Dapper
 {
@@ -75,7 +75,8 @@ namespace Identity.Dapper
             };
             using (var db = _conn.Get())
             {
-                await db.InsertAsync(newLogin);
+                var sql = "INSERT INTO IdentityUserLogin (UserId, ProviderKey, LoginProvider) VALUES (@UserId, @ProviderKey, @LoginProvider)";
+                await db.ExecuteAsync(sql, newLogin);
             }
         }
 
@@ -103,7 +104,8 @@ namespace Identity.Dapper
             var userRole = new IdentityUserRole { UserId = user.Id, RoleId = role.Id };
             using (var db = _conn.Get())
             {
-                await db.InsertAsync(userRole);
+                var sql = "INSERT INTO IdentityUserRole (UserId, RoleId) VALUES (@UserId, @RoleId)";
+                await db.ExecuteAsync(sql, userRole);
             }
         }
 

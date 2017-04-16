@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Cototal.Dapper.Shared.Standard;
+using Dapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -80,7 +81,7 @@ namespace Identity.Dapper
                             FOREIGN KEY([RoleId]) REFERENCES [IdentityRole] ([Id]) ON DELETE CASCADE
                         ALTER TABLE [IdentityUserRole] ADD CONSTRAINT [FK_IdentityUserRole.UserId]
                             FOREIGN KEY([UserId]) REFERENCES [IdentityUser] ([Id]) ON DELETE CASCADE";
-                    db.Execute(sql);
+                    db.Execute(sql, transaction: trans);
                     trans.Commit();
                 }
             }
@@ -97,7 +98,7 @@ namespace Identity.Dapper
                         DROP TABLE [IdentityUserRole];
                         DROP TABLE [IdentityRole];
                         DROP TABLE [IdentityUser];";
-                    db.Execute(sql);
+                    db.Execute(sql, transaction: trans);
                     trans.Commit();
                 }
             }

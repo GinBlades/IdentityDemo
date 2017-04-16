@@ -2,10 +2,12 @@
 
 namespace Identity.Dapper
 {
+    /// <summary>
+    /// No single primary key, so Dapper.Contrib extensions will not work
+    /// </summary>
     [Table("IdentityUserLogin")]
     public class IdentityUserLogin : IUserRelationship
     {
-        public int Id { get; set; }
         /// <summary>
         ///     The login provider for the login (i.e. facebook, google)
         /// </summary>

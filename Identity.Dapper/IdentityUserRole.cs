@@ -2,10 +2,12 @@
 
 namespace Identity.Dapper
 {
+    /// <summary>
+    /// No single primary key, so Dapper.Contrib extensions will not work
+    /// </summary>
     [Table("IdentityUserRole")]
     public class IdentityUserRole : IUserRelationship
     {
-        public int Id { get; set; }
         /// <summary>
         ///     UserId for the user that is in the role
         /// </summary>

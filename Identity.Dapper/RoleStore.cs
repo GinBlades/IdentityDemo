@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Cototal.Dapper.Shared.Standard;
+using Dapper;
 using Dapper.Contrib.Extensions;
 using Microsoft.AspNet.Identity;
 using System;
