@@ -21,9 +21,9 @@ namespace Identity.Dapper
         IUserTwoFactorStore<TUser, string>, IUserLockoutStore<TUser, string>
         where TUser : IdentityUser
     {
-        private readonly SqlConnection _conn;
+        private readonly IConnectionFactory _conn;
 
-        public UserStore(SqlConnection conn)
+        public UserStore(IConnectionFactory conn)
         {
             _conn = conn;
         }
@@ -45,7 +45,10 @@ namespace Identity.Dapper
                 throw new ArgumentNullException("claim");
             }
             var iuc = new IdentityUserClaim { UserId = user.Id, ClaimType = claim.Type, ClaimValue = claim.Value };
-            await _conn.InsertAsync(iuc);
+            using (var db = _conn.Get())
+            {
+                await db.InsertAsync(iuc);
+            }
         }
 
         /// <summary>
@@ -70,7 +73,10 @@ namespace Identity.Dapper
                 ProviderKey = login.ProviderKey,
                 LoginProvider = login.LoginProvider
             };
-            await _conn.InsertAsync(newLogin);
+            using (var db = _conn.Get())
+            {
+                await db.InsertAsync(newLogin);
+            }
         }
 
         /// <summary>
@@ -95,7 +101,10 @@ namespace Identity.Dapper
                 throw new Exception($"Role ({roleName}) not found");
             }
             var userRole = new IdentityUserRole { UserId = user.Id, RoleId = role.Id };
-            await _conn.InsertAsync(userRole);
+            using (var db = _conn.Get())
+            {
+                await db.InsertAsync(userRole);
+            }
         }
 
 
@@ -109,7 +118,10 @@ namespace Identity.Dapper
             {
                 throw new ArgumentNullException("user");
             }
-            await _conn.InsertAsync(user);
+            using (var db = _conn.Get())
+            {
+                await db.InsertAsync(user);
+            }
         }
 
         /// <summary>
@@ -122,7 +134,10 @@ namespace Identity.Dapper
             {
                 throw new ArgumentNullException("user");
             }
-            await _conn.DeleteAsync(user);
+            using (var db = _conn.Get())
+            {
+                await db.DeleteAsync(user);
+            }
         }
 
         public void Dispose()
@@ -140,14 +155,17 @@ namespace Identity.Dapper
             {
                 throw new ArgumentNullException("login");
             }
-            var sql = "SELECT * FROM IdentityUserLogin WHERE LoginProvider = @loginProvider " +
-                "AND ProviderKey = @providerKey";
-            var userLogin = await _conn.QuerySingleOrDefaultAsync<IdentityUserLogin>(
-                sql, new { login.LoginProvider, login.ProviderKey });
-            if (userLogin != null)
+            using (var db = _conn.Get())
             {
-                var userId = userLogin.UserId;
-                return await _conn.GetAsync<TUser>(userId);
+                var sql = "SELECT * FROM IdentityUserLogin WHERE LoginProvider = @loginProvider " +
+                    "AND ProviderKey = @providerKey";
+                var userLogin = await db.QuerySingleOrDefaultAsync<IdentityUserLogin>(
+                    sql, new { login.LoginProvider, login.ProviderKey });
+                if (userLogin != null)
+                {
+                    var userId = userLogin.UserId;
+                    return await db.GetAsync<TUser>(userId);
+                }
             }
             return null;
         }
@@ -160,7 +178,10 @@ namespace Identity.Dapper
         public async Task<TUser> FindByEmailAsync(string email)
         {
             var sql = "SELECT * FROM IdentityUser WHERE lower(email) = @email";
-            return await _conn.QuerySingleOrDefaultAsync<TUser>(sql, new { Email = email.ToLower() });
+            using (var db = _conn.Get())
+            {
+                return await db.QuerySingleOrDefaultAsync<TUser>(sql, new { Email = email.ToLower() });
+            }
         }
 
         /// <summary>
@@ -170,7 +191,10 @@ namespace Identity.Dapper
         /// <returns></returns>
         public async Task<TUser> FindByIdAsync(string userId)
         {
-            return await _conn.GetAsync<TUser>(userId);
+            using (var db = _conn.Get())
+            {
+                return await db.GetAsync<TUser>(userId);
+            }
         }
 
         /// <summary>
@@ -181,7 +205,10 @@ namespace Identity.Dapper
         public async Task<TUser> FindByNameAsync(string userName)
         {
             var sql = "SELECT * FROM IdentityUser WHERE lower(username) = @username";
-            return await _conn.QuerySingleOrDefaultAsync<TUser>(sql, new { Username = userName.ToLower() });
+            using (var db = _conn.Get())
+            {
+                return await db.QuerySingleOrDefaultAsync<TUser>(sql, new { Username = userName.ToLower() });
+            }
         }
 
         /// <summary>
@@ -342,12 +369,15 @@ namespace Identity.Dapper
             {
                 throw new ArgumentNullException("user");
             }
-            var sql = "SELECT Name FROM IdentityRole role " +
-                "JOIN IdentityUserRole userRole ON role.Id = userRole.RoleId " +
-                "WHERE userRole.UserId = @userId";
+            using (var db = _conn.Get())
+            {
+                var sql = "SELECT Name FROM IdentityRole role " +
+                    "JOIN IdentityUserRole userRole ON role.Id = userRole.RoleId " +
+                    "WHERE userRole.UserId = @userId";
 
-            var result = await _conn.QueryAsync<string>(sql, new { UserId = user.Id });
-            return result.ToList();
+                var result = await db.QueryAsync<string>(sql, new { UserId = user.Id });
+                return result.ToList();
+            }
         }
 
         /// <summary>
@@ -422,8 +452,12 @@ namespace Identity.Dapper
             var role = await GetRoleByName(roleName);
             if (role != null)
             {
-                var existsSql = "SELECT COUNT(1) FROM IdentityUserRole WHERE UserId = @userId AND RoleId = @roleId";
-                return await _conn.ExecuteScalarAsync<bool>(existsSql, new { UserId = user.Id, RoleId = role.Id });
+
+                using (var db = _conn.Get())
+                {
+                    var existsSql = "SELECT COUNT(1) FROM IdentityUserRole WHERE UserId = @userId AND RoleId = @roleId";
+                    return await db.ExecuteScalarAsync<bool>(existsSql, new { UserId = user.Id, RoleId = role.Id });
+                }
             }
             return false;
         }
@@ -450,8 +484,11 @@ namespace Identity.Dapper
             );
             if (claimsToRemove.Count() > 0)
             {
-                await _conn.ExecuteAsync(
-                    "DELETE FROM IdentityUser Claim WHERE Id IN @Ids", new { Ids = claimsToRemove.Select(c => c.Id) });
+                using (var db = _conn.Get())
+                {
+                    await db.ExecuteAsync(
+                        "DELETE FROM IdentityUser Claim WHERE Id IN @Ids", new { Ids = claimsToRemove.Select(c => c.Id) });
+                }
             }
         }
 
@@ -486,7 +523,10 @@ namespace Identity.Dapper
             {
                 return;
             }
-            await _conn.DeleteAsync(userRole);
+            using (var db = _conn.Get())
+            {
+                await db.DeleteAsync(userRole);
+            }
         }
 
         /// <summary>
@@ -517,7 +557,10 @@ namespace Identity.Dapper
             {
                 return;
             }
-            await _conn.DeleteAsync(userLogin);
+            using (var db = _conn.Get())
+            {
+                await db.DeleteAsync(userLogin);
+            }
         }
 
         /// <summary>
@@ -689,7 +732,10 @@ namespace Identity.Dapper
             {
                 throw new ArgumentNullException("user");
             }
-            await _conn.UpdateAsync(user);
+            using (var db = _conn.Get())
+            {
+                await db.UpdateAsync(user);
+            }
         }
 
         private async Task<List<IdentityUserClaim>> EnsureUserClaimsAreLoaded(TUser user)
@@ -721,15 +767,21 @@ namespace Identity.Dapper
 
         private async Task<List<T>> LoadRelationship<T>(TUser user, string tableName) where T : IUserRelationship
         {
-            var result = await _conn.QueryAsync<T>(
-                $"SELECT * FROM {tableName} WHERE UserId = @userId", new { UserId = user.Id });
-            return result.ToList();
+            using (var db = _conn.Get())
+            {
+                var result = await db.QueryAsync<T>(
+                    $"SELECT * FROM {tableName} WHERE UserId = @userId", new { UserId = user.Id });
+                return result.ToList();
+            }
         }
 
         private async Task<IdentityRole> GetRoleByName(string roleName)
         {
-            var sql = "SELECT * FROM IdentityRole WHERE lower(name) = @roleName";
-            return await _conn.QuerySingleOrDefaultAsync<IdentityRole>(sql, new { RoleName = roleName.ToLower() });
+            using (var db = _conn.Get())
+            {
+                var sql = "SELECT * FROM IdentityRole WHERE lower(name) = @roleName";
+                return await db.QuerySingleOrDefaultAsync<IdentityRole>(sql, new { RoleName = roleName.ToLower() });
+            }
         }
     }
 }
