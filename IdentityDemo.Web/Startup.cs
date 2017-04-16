@@ -8,7 +8,6 @@ namespace IdentityDemo.Web
     {
         public void Configuration(IAppBuilder app)
         {
-            Migrator.Up();
             ConfigureAuth(app);
         }
     }

@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 using Dapper.Contrib.Extensions;
 using Dapper;
 
-namespace Identity.OrmLite
+namespace Identity.Dapper
 {
     /// <summary>
     ///     OrmLite based user store implementation that supports IUserStore, IUserLoginStore, IUserClaimStore and

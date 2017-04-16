@@ -3,7 +3,7 @@ using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 
-namespace Identity.OrmLite
+namespace Identity.Dapper
 {
     [Table("IdentityRole")]
     public class IdentityRole : IRole
@@ -35,6 +35,7 @@ namespace Identity.OrmLite
         /// <summary>
         ///     Role id
         /// </summary>
+        [ExplicitKey]
         public string Id { get; set; }
 
         /// <summary>

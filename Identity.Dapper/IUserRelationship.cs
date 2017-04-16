@@ -1,4 +1,4 @@
-﻿namespace Identity.OrmLite
+﻿namespace Identity.Dapper
 {
     public interface IUserRelationship
     {

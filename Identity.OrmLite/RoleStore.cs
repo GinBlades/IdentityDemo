@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Identity.OrmLite
+namespace Identity.Dapper
 {
     public class RoleStore : IRoleStore<IdentityRole>
     {

@@ -1,19 +1,13 @@
-﻿using ServiceStack.Data;
-using ServiceStack.OrmLite;
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Web;
+﻿using System.Configuration;
+using System.Data.SqlClient;
 
 namespace IdentityDemo.Web
 {
     public static class DbFactory
     {
-        public static IDbConnectionFactory Connection()
+        public static SqlConnection Connection()
         {
-            return new OrmLiteConnectionFactory(
-                ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString, SqlServerDialect.Provider);
+            return new SqlConnection(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
         }
     }
 }

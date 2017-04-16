@@ -1,6 +1,6 @@
 ﻿using Dapper.Contrib.Extensions;
 
-namespace Identity.OrmLite
+namespace Identity.Dapper
 {
     [Table("IdentityUserLogin")]
     public class IdentityUserLogin : IUserRelationship

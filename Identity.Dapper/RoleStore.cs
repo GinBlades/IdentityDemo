@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Identity.OrmLite
+namespace Identity.Dapper
 {
     public class RoleStore : IRoleStore<IdentityRole>
     {

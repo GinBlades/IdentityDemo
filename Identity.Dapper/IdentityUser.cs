@@ -3,7 +3,7 @@ using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
 
-namespace Identity.OrmLite
+namespace Identity.Dapper
 {
     [Table("IdentityUser")]
     public class IdentityUser : IUser
@@ -25,6 +25,12 @@ namespace Identity.OrmLite
         {
             UserName = userName;
         }
+
+        /// <summary>
+        ///     User ID (Primary Key)
+        /// </summary>
+        [ExplicitKey]
+        public virtual string Id { get; set; }
 
         /// <summary>
         ///     Email
@@ -93,11 +99,6 @@ namespace Identity.OrmLite
         /// </summary>
         [Computed]
         public virtual List<IdentityUserLogin> Logins { get; private set; } = new List<IdentityUserLogin>();
-
-        /// <summary>
-        ///     User ID (Primary Key)
-        /// </summary>
-        public virtual string Id { get; set; }
 
         /// <summary>
         ///     User name
